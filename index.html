@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kaarigai Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f0e8;font-family:Lato,sans-serif;color:#1a2744;min-height:100vh}
+h1,h2,h3{font-family:'Playfair Display',serif}
+input,select,textarea{font-family:Lato,sans-serif;font-size:14px;width:100%;padding:10px 13px;border:1.5px solid #c8bfa8;border-radius:7px;background:#fff;color:#1a2744;outline:none;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:#b8965a}
+textarea{resize:vertical;min-height:70px}
+button{font-family:Lato,sans-serif;cursor:pointer;border:none;border-radius:7px;font-size:13px;font-weight:700;transition:opacity .15s}
+label{display:block;font-size:10px;font-weight:700;color:#b8965a;margin-bottom:5px;text-transform:uppercase;letter-spacing:.12em}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* Sync bar */
+#sync-bar{background:#0d1a30;padding:6px 16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:11px;min-height:30px}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.sdot.ok{background:#2ecc71}
+.sdot.loading{background:#f39c12;animation:blink 1s infinite}
+.sdot.err{background:#e74c3c}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+/* Nav */
+.top-nav{background:#1a2744;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 14px;display:flex;align-items:center;height:56px;gap:2px}
+.nav-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+.nav-logo img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #b8965a}
+.nav-logo-txt h1{font-size:15px;color:#fff}
+.nav-logo-txt p{font-size:9px;color:#b8965a;letter-spacing:.14em;text-transform:uppercase}
+.nav-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:#c8bfa8;font-size:12px;font-weight:700;padding:0 14px;height:56px;cursor:pointer;transition:all .2s;font-family:Lato,sans-serif;position:relative;white-space:nowrap}
+.nav-btn:hover{color:#fff}
+.nav-btn.active{color:#b8965a;border-bottom-color:#b8965a}
+.nbadge{background:#e74c3c;color:#fff;border-radius:9px;padding:1px 5px;font-size:9px;margin-left:4px;font-weight:700;vertical-align:middle;display:none}
+/* Pages */
+.page{display:none;max-width:1100px;margin:0 auto;padding:22px 14px 80px}
+.page.on{display:block}
+/* Cards / sections */
+.card{background:#fff;border:1px solid #e0d8c8;border-radius:10px;padding:20px;box-shadow:0 2px 12px rgba(26,39,68,.06)}
+.section-title{font-size:10px;font-weight:700;color:#b8965a;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:#ede5d5}
+/* Stats */
+.stat-card{background:#fff;border:1px solid #e0d8c8;border-top:3px solid #b8965a;border-radius:8px;padding:14px 16px}
+.stat-lbl{font-size:10px;color:#7a8ba6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.stat-val{font-size:21px;font-weight:700;font-family:'Playfair Display',serif}
+/* Order cards */
+.ocard{background:#fff;border:1px solid #e0d8c8;border-radius:8px;padding:14px 16px;margin-bottom:9px;cursor:pointer;transition:box-shadow .18s,transform .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.ocard:hover{box-shadow:0 4px 16px rgba(26,39,68,.11);transform:translateY(-1px)}
+.ocard:active{transform:scale(.99)}
+/* Badge */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;border:1px solid transparent}
+.bs-Confirmed,.bs-default{background:#fff8e6;color:#8b6914;border-color:#c8960a}
+.bs-In-Progress{background:#fff8e6;color:#8b6914;border-color:#c8960a}
+.bs-Ready{background:#e6f4ff;color:#1a4a7a;border-color:#3a7abf}
+.bs-Delivered{background:#f0fff5;color:#2e6b4f;border-color:#2e6b4f}
+.bs-Cancelled{background:#f5f5f5;color:#666;border-color:#ccc}
+.b-due{background:#fff0f0;color:#8b2e2e;border-color:#c05050}
+.b-paid{background:#f0fff5;color:#2e6b4f;border-color:#2e6b4f}
+.b-tom{background:#a02020;color:#fff;border:none}
+/* Chart */
+.bar-row{display:flex;align-items:flex-end;gap:8px;height:120px;border-bottom:2px solid #e0d8c8;overflow-x:auto;padding-bottom:0}
+.bar-grp{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;min-width:44px}
+.bar-pair{display:flex;align-items:flex-end;gap:3px}
+.bar-rev{background:linear-gradient(180deg,#b8965a,#d4af7a);border-radius:3px 3px 0 0;min-height:2px;width:16px}
+.bar-bal{background:linear-gradient(180deg,#8b2e2e,#c05050);border-radius:3px 3px 0 0;min-height:2px;width:10px}
+.bar-lbl{font-size:9px;color:#7a8ba6;margin-top:5px;text-align:center;white-space:nowrap}
+.pill{padding:4px 11px;font-size:11px;font-weight:700;border-radius:20px;border:1.5px solid #c8bfa8;background:transparent;color:#7a8ba6;cursor:pointer;font-family:Lato,sans-serif;transition:all .15s}
+.pill:hover,.pill.on{background:#1a2744;color:#fff;border-color:#1a2744}
+/* Filter */
+.fbtn{padding:5px 13px;font-size:11px;font-weight:700;border-radius:20px;border:1.5px solid #c8bfa8;background:transparent;color:#7a8ba6;cursor:pointer;transition:all .15s;font-family:Lato,sans-serif;white-space:nowrap}
+.fbtn:hover,.fbtn.on{background:#1a2744;color:#fff;border-color:#1a2744}
+/* Revenue table */
+.rtbl{width:100%;border-collapse:collapse;font-size:13px}
+.rtbl th{background:#1a2744;color:#b8965a;padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-family:Lato,sans-serif}
+.rtbl td{padding:8px 12px;border-bottom:1px solid #f0ebe0}
+.rtbl tr:last-child td{border-bottom:none}
+.rtbl tr:hover td{background:#faf7f2}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(20,32,56,.65);display:flex;align-items:center;justify-content:center;z-index:300;padding:12px;overflow-y:auto}
+.mbox{background:#fff;border-radius:12px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(26,39,68,.3)}
+.mhead{background:linear-gradient(135deg,#1a2744,#243660);border-radius:12px 12px 0 0;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.mbody{padding:20px}
+.msec{margin-bottom:18px}
+.frow{display:flex;gap:6px;align-items:center}
+.frow input,.frow select,.frow textarea{flex:1;min-width:0}
+.sbtn{padding:7px 12px;font-size:11px;font-weight:700;background:#1a2744;color:#b8965a;border:1.5px solid #b8965a;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.sbtn:hover{opacity:.85}
+.pay-row{background:#1a2744;border-radius:9px;padding:12px 16px;display:flex;justify-content:space-around;margin-bottom:10px}
+.pay-item p:first-child{font-size:10px;color:#c8bfa8;margin-bottom:3px}
+.pay-item p:last-child{font-size:16px;font-weight:700;font-family:'Playfair Display',serif}
+.bal-strip{background:#fff8e6;border:1px solid #c8960a;border-radius:6px;padding:8px 13px;display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+/* WA button */
+.wabtn{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;font-weight:700;padding:11px 16px;border-radius:7px;text-decoration:none;font-size:13px;width:100%;border:none;cursor:pointer;font-family:Lato,sans-serif}
+/* Toast */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a2744;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;border-left:4px solid #b8965a;white-space:nowrap;max-width:90vw;text-align:center;opacity:0;transition:opacity .22s}
+/* Divider */
+hr.d{border:none;border-top:1px solid #ede5d5;margin:16px 0}
+/* Buttons */
+.btn-navy{background:linear-gradient(135deg,#1a2744,#243660);color:#fff;border:2px solid #b8965a;padding:10px 20px;border-radius:7px}
+.btn-navy:hover{opacity:.88}
+.btn-ghost{background:transparent;border:1.5px solid #1a2744;color:#1a2744;padding:8px 16px;border-radius:7px}
+.btn-ghost:hover{background:#ede5d5}
+.btn-red{background:#fff0f0;color:#8b2e2e;border:1.5px solid #8b2e2e;padding:10px 20px;border-radius:7px}
+.btn-red:hover{background:#ffe0e0}
+.btn-green{background:#2e6b4f;color:#fff;border:none;padding:7px 12px;border-radius:6px}
+.btn-green:hover{opacity:.88}
+/* Form errors */
+.ferr{font-size:11px;color:#8b2e2e;min-height:14px;margin-top:3px}
+/* No-data */
+.empty{text-align:center;padding:44px 0;color:#7a8ba6;background:#fff;border-radius:8px;border:1px dashed #ddd5c0;font-size:14px}
+/* Responsive */
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}.nav-btn{padding:0 8px;font-size:11px}}
+@media(max-width:380px){.g2,.g3,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="sync-bar">
+  <div class="sdot loading" id="sdot"></div>
+  <span id="sync-txt" style="color:#f39c12">Connecting to Google Sheets…</span>
+  <button onclick="load()" style="background:none;border:none;color:#b8965a;font-size:11px;font-weight:700;cursor:pointer;margin-left:10px">🔄 Refresh</button>
+</div>
+
+<nav class="top-nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <img src="data:image/png;base64,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+bDI4tPo9481k5rTeXEuUixQw13HZWX2izTyjZQI5tgC9ro+pB5GktO3UEg9dlIl+j5/RsW/vNiQ4O5avUGTX8ZYxtpr3xzV5uvI9h2Ja7s9h7h/mD5dlHNdawm09moqDJsBVjdjpbz5crdNcSckgb4cZAPvdd/P5Lb6N0/DpnDDHRSiV75pJ5nNZ4bHSPO55W7nkaOgA3OwHmdytfqbB5a1qetmsbDgrbI8fJTdBlI5HNBMok5hyA79tiOii0PHWS+XeJdLnwW3k75PP5Z0emmYrH1orWbY+Qx5B8jfZwK/ilpDRuXeSyMTqSCfTFzN5KOOszHy2YrvhSeLHvASHGN2w5wdunTfy7haW3w7pZDA6bwGXljyFDFRTRziRha+XxITG0x7f1ZaT069AAsubSl25ozHaXvW6rKsE8bLbqUZgM9aMksDQ3YRueRHzbdOj9u6kTWHKKSfv3LV1dzP01nrGU0nJlLdFtHI12yx3aj37+BNGCSwn8jv6Fa3TeuYs5T01YgqGJ+WfJDaglO0lSWOsZi0jz36bHza4HzWXjdLy4u7mfZchYnq5aqPEFueSaUWQwx+JzH90x+GCPWMeqwMfoRtHL6Wy0VsMsYmkKt5kY+rt8lZ0Mcm3k9u5AP3TsewVNsL6v7FX1DvNqfUEZzWSZiaFnEYm7NXmZFYkFwxxBpe8NLeR5DSTy7gkDod1MK8sViCOxDKJI5GCRjx2c0jcH8lDH6c1O92bxkeSxdbE5a9PYlsRxyOttjlAD42A7Rg7At5uu2++26mVaGKtXirwsEcUTBHGwdmMA2A/IKFl9HiuG2/4MlXL3PVERa4khERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQD8EREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREB//2Q==" alt="Kaarigai"/>
+      <div class="nav-logo-txt"><h1>Kaarigai Designs</h1><p>Clothing Brand</p></div>
+    </div>
+    <button class="nav-btn active" id="nb-dash"    onclick="goPage('dash')">📊 Dashboard</button>
+    <button class="nav-btn"        id="nb-new"     onclick="goPage('new')">✦ New Order</button>
+    <button class="nav-btn"        id="nb-history" onclick="goPage('history')">📋 History<span class="nbadge" id="tom-badge"></span></button>
+  </div>
+</nav>
+
+<div class="page on" id="page-dash">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div><h2 style="font-size:22px">Dashboard</h2><p id="dash-sub" style="font-size:12px;color:#7a8ba6;margin-top:2px">Loading…</p></div>
+    <button class="btn-ghost" style="font-size:12px;padding:7px 14px" onclick="load()">🔄 Refresh</button>
+  </div>
+  <div id="dash-body"></div>
+</div>
+
+<div class="page" id="page-new">
+  <div style="margin-bottom:20px"><h2 style="font-size:22px">New Order</h2><p style="font-size:12px;color:#7a8ba6;margin-top:2px">Fill in customer &amp; dress details</p></div>
+  <div class="card" style="max-width:700px;margin:0 auto">
+
+    <p class="section-title">👤 Customer</p>
+    <div class="g2" style="margin-bottom:12px">
+      <div><label>Full Name *</label><input id="fn" placeholder="e.g. Meena Lakshmi"/><p class="ferr" id="err-fn"></p></div>
+      <div><label>WhatsApp Number *</label><input id="ph" placeholder="9940123456" oninput="updRef()"/><p class="ferr" id="err-ph"></p></div>
+      <div style="grid-column:1/-1"><label>Email (optional)</label><input id="em" placeholder="email@example.com" type="email"/></div>
+    </div>
+    <div style="background:#f5f0e8;border-radius:7px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <span style="font-size:10px;color:#7a8ba6;font-weight:700;text-transform:uppercase;letter-spacing:.1em">Reference</span>
+      <span id="ref-prev" style="color:#b8965a;font-size:13px;font-weight:700;letter-spacing:.1em">KD-2026-XXXX</span>
+    </div>
+
+    <hr class="d"/>
+    <p class="section-title">👗 Dress &amp; Measurements</p>
+    <div style="margin-bottom:12px">
+      <label>Dress Type *</label>
+      <select id="dt"><option value="">Select…</option>
+        <option>Saree</option><option>Gown</option><option>Blouse</option><option>Lehenga</option>
+        <option>Salwar Kameez</option><option>Kurti</option><option>Anarkali</option>
+        <option>Churidar</option><option>Pavadai</option><option>Other</option>
+      </select>
+      <p class="ferr" id="err-dt"></p>
+    </div>
+    <div class="g3" style="margin-bottom:12px">
+      <div><label>Bust (in)</label><input id="bust" type="number" placeholder="36"/></div>
+      <div><label>Waist (in)</label><input id="waist" type="number" placeholder="30"/></div>
+      <div><label>Hip (in)</label><input id="hip" type="number" placeholder="38"/></div>
+      <div><label>Length (in)</label><input id="len" type="number" placeholder="44"/></div>
+      <div><label>Shoulder (in)</label><input id="sho" type="number" placeholder="14"/></div>
+      <div><label>Sleeve (in)</label><input id="slv" type="number" placeholder="22"/></div>
+    </div>
+    <div style="margin-bottom:12px"><label>Customization</label><textarea id="cust" placeholder="Embroidery, fabric, colour, design notes…"></textarea></div>
+    <div style="margin-bottom:18px"><label>Additional Notes</label><textarea id="nts" placeholder="Any special instructions…"></textarea></div>
+
+    <hr class="d"/>
+    <p class="section-title">💰 Payment</p>
+    <div class="g2" style="margin-bottom:12px">
+      <div><label>Total Amount (₹) *</label><input id="tot" type="number" placeholder="0" oninput="updBal()"/><p class="ferr" id="err-tot"></p></div>
+      <div><label>Advance Paid (₹) *</label><input id="adv" type="number" placeholder="0" oninput="updBal()"/><p class="ferr" id="err-adv"></p></div>
+    </div>
+    <div style="background:#1a2744;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <span style="color:#b8965a;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em">Balance Due</span>
+      <span id="new-bal" style="color:#fff;font-size:22px;font-weight:700;font-family:'Playfair Display',serif">₹0</span>
+    </div>
+
+    <hr class="d"/>
+    <p class="section-title">📅 Dates</p>
+    <div class="g2" style="margin-bottom:22px">
+      <div><label>Order Date *</label><input id="od" type="date"/><p class="ferr" id="err-od"></p></div>
+      <div><label>Delivery Date *</label><input id="dd" type="date"/><p class="ferr" id="err-dd"></p></div>
+    </div>
+
+    <button class="btn-navy" style="width:100%;padding:14px;font-size:15px" onclick="submitOrder()">✦ Confirm Order</button>
+  </div>
+</div>
+
+<div class="page" id="page-history">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div><h2 style="font-size:22px">Order History</h2><p id="hist-sub" style="font-size:12px;color:#7a8ba6;margin-top:2px">All orders</p></div>
+    <button class="btn-ghost" style="font-size:12px;padding:7px 14px" onclick="load()">🔄 Refresh</button>
+  </div>
+  <div id="hist-body"></div>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast"></div>
+
+<script>
+// ─── CONSTANTS ───
+const API      = "https://script.google.com/macros/s/AKfycbw8YIVCtANgET3OQiLhQU23d98GpK1gv4Kj5SS39y7LNGIz5D6I0IxEapvI9EwyvGY/exec";
+const OWNER_WA = "918056388361";
+const BOUTIQUE = "Kaarigai Designs";
+const IG_HDL   = "@kaarigai_pennea_";
+const IG_URL   = "https://www.instagram.com/kaarigai_pennea_";
+const MONTHS   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const STATUSES = ["Confirmed","In Progress","Ready","Delivered","Cancelled"];
+const DRESS_TYPES = ["Saree","Gown","Blouse","Lehenga","Salwar Kameez","Kurti","Anarkali","Churidar","Pavadai","Other"];
+
+// ─── STATE ───
+let orders    = [];
+let chartRng  = "6M";
+let hSearch   = "", hFilter = "All", hYear = "All", hMonth = "All";
+
+// ─── DATE UTILS ───
+// Handles every format Google Sheets can return:
+// ISO string, Date object, Excel serial number, US format, JS Date.toString()
+function parseDate(v) {
+  if (v === null || v === undefined || v === "" || v === 0 || v === false) return null;
+  if (v instanceof Date) return isNaN(v) ? null : v;
+  const s = String(v).trim();
+  if (!s || s === "0" || s === "null" || s === "undefined") return null;
+  // YYYY-MM-DD  (most common from GAS doGet)
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(s.slice(0,10) + "T00:00:00");
+    return isNaN(d) ? null : d;
+  }
+  // MM/DD/YYYY
+  const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (us) { const d = new Date(+us[3], +us[1]-1, +us[2]); return isNaN(d) ? null : d; }
+  // Excel serial (Google sometimes sends raw numbers)
+  const n = Number(s);
+  if (!isNaN(n) && n > 40000 && n < 70000) {
+    const d = new Date(Date.UTC(1899,11,30) + n * 86400000);
+    return isNaN(d) ? null : d;
+  }
+  // JS Date.toString() / RFC 2822 / anything else
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+function toISO(v) {
+  const d = parseDate(v); if (!d) return "";
+  return d.getFullYear() + "-" +
+    String(d.getMonth()+1).padStart(2,"0") + "-" +
+    String(d.getDate()).padStart(2,"0");
+}
+
+function fmt(v) {
+  const d = parseDate(v); if (!d) return "—";
+  return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+
+function todayISO()    { return toISO(new Date()); }
+function tomorrowISO() { const t = new Date(); t.setDate(t.getDate()+1); return toISO(t); }
+
+// ─── HELPERS ───
+function bal(o)  { return Math.max(0, (+o.totalAmount||0) - (+o.amountPaid||0)); }
+function inr(n)  { return "₹" + Number(n||0).toLocaleString("en-IN"); }
+function esc(s)  { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+// Stable string ID derived from order id (avoids float/scientific notation issues)
+function mkSid(o) { return "o_" + String(o.id).replace(/\D/g,"").replace(/^(\d+)$/,m=>String(Math.round(+m))); }
+function findBySid(sid) { return orders.find(o => mkSid(o) === sid); }
+
+let _toastTimer;
+function toast(msg, ms=2800) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.style.opacity = "1";
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.style.opacity="0", ms);
+}
+
+// ─── SYNC STATUS ───
+function syncSet(state, msg) {
+  const dot = document.getElementById("sdot");
+  const txt = document.getElementById("sync-txt");
+  dot.className = "sdot " + state;
+  txt.style.color = state==="ok"?"#2ecc71":state==="err"?"#e74c3c":"#f39c12";
+  txt.textContent = msg;
+  if (state === "ok") {
+    setTimeout(()=>{ txt.style.color="#7a8ba6"; txt.textContent="Connected to Google Sheets"; }, 3000);
+  }
+}
+
+// ─── NORMALISE ORDER FROM SHEETS ───
+// CRITICAL: parse dates from raw value BEFORE any String() conversion
+function normalise(raw) {
+  const o = {};
+  for (const k of Object.keys(raw)) {
+    if (k === "orderDate" || k === "deliveryDate") {
+      o[k] = toISO(raw[k]);        // handles Date objects, serials, strings
+    } else {
+      const v = raw[k];
+      o[k] = (v === null || v === undefined) ? "" : String(v);
+    }
+  }
+  // Fix IDs stored in scientific notation e.g. "1.77e+12"
+  if (o.id) {
+    const n = Number(o.id);
+    if (!isNaN(n) && n > 1e10) o.id = String(Math.round(n));
+  }
+  return o;
+}
+
+// ─── API CALLS ───
+async function apiGet() {
+  const r = await fetch(API + "?t=" + Date.now(), {
+    method: "GET", redirect: "follow", cache: "no-store"
+  });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const j = await r.json();
+  if (!j.success) throw new Error(j.error || "API error");
+  return j;
+}
+
+async function apiPost(payload) {
+  const r = await fetch(API, {
+    method:  "POST",
+    headers: { "Content-Type": "text/plain" },
+    body:    JSON.stringify(payload),
+    redirect:"follow"
+  });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const j = await r.json();
+  if (!j.success) throw new Error(j.error || "API error");
+  return j;
+}
+
+// ─── LOAD ORDERS ───
+async function load() {
+  syncSet("loading", "Syncing with Google Sheets…");
+  try {
+    const j = await apiGet();
+    orders = j.orders
+      .map(normalise)
+      .filter(o => o.status !== "Deleted" && o.deleted !== "true");
+    try { localStorage.setItem("kd_orders", JSON.stringify(orders)); } catch(_){}
+    syncSet("ok", "Synced ✓");
+  } catch(e) {
+    syncSet("err", "Sync failed — " + e.message);
+    try { const c = localStorage.getItem("kd_orders"); if(c) orders = JSON.parse(c); } catch(_){}
+  }
+  renderAll();
+}
+
+// ─── NAVIGATION ───
+function goPage(p) {
+  ["dash","new","history"].forEach(n => {
+    document.getElementById("page-"+n).classList.toggle("on", n===p);
+    document.getElementById("nb-"+n).classList.toggle("active", n===p);
+  });
+}
+
+// ─── RENDER ALL ───
+function renderAll() {
+  renderDash();
+  renderHistory();
+  const tom = getTomorrow();
+  const b   = document.getElementById("tom-badge");
+  b.textContent = tom.length;
+  b.style.display = tom.length ? "inline" : "none";
+}
+
+// ─── TOMORROW ORDERS ───
+function getTomorrow() {
+  const t = tomorrowISO();
+  return orders.filter(o =>
+    toISO(o.deliveryDate) === t &&
+    o.status !== "Delivered" && o.status !== "Cancelled"
+  );
+}
+
+// ─── DASHBOARD ───
+function renderDash() {
+  const vis = orders;
+  const totRev  = vis.reduce((a,o) => a+(+o.totalAmount||0), 0);
+  const totPaid = vis.reduce((a,o) => a+(+o.amountPaid||0), 0);
+  const totBal  = vis.reduce((a,o) => a+bal(o), 0);
+  const active  = vis.filter(o => !["Delivered","Cancelled"].includes(o.status)).length;
+  const deliv   = vis.filter(o => o.status==="Delivered").length;
+
+  const sub = document.getElementById("dash-sub");
+  if (sub) sub.textContent = vis.length + " total orders";
+
+  // Monthly buckets
+  const mMap = {};
+  vis.forEach(o => {
+    const d = parseDate(o.orderDate); if (!d) return;
+    const k   = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+    const lbl = MONTHS[d.getMonth()]+"'"+String(d.getFullYear()).slice(2);
+    if (!mMap[k]) mMap[k] = {lbl, rev:0, paid:0, outstanding:0, count:0};
+    mMap[k].rev += (+o.totalAmount||0);
+    mMap[k].paid+= (+o.amountPaid||0);
+    mMap[k].outstanding += bal(o);
+    mMap[k].count++;
+  });
+  const allM  = Object.keys(mMap).sort().map(k => mMap[k]);
+  const range = {"3M":3,"6M":6,"12M":12}[chartRng];
+  const chartM= range ? allM.slice(-range) : allM;
+  const maxV  = Math.max(1, ...chartM.map(m => m.rev));
+
+  // Chart
+  const chartHTML = chartM.length === 0
+    ? `<div class="empty" style="border:none;background:transparent">No orders yet — add orders to see the chart</div>`
+    : `<div class="bar-row">${chartM.map(m => {
+        const rh = Math.max(3, Math.round(m.rev/maxV*110));
+        const bh = Math.max(2, Math.round(m.outstanding/maxV*110));
+        const rl = m.rev>=1000 ? "₹"+Math.round(m.rev/1000)+"k" : "₹"+m.rev;
+        return `<div class="bar-grp">
+          <div class="bar-pair">
+            <div style="position:relative">
+              <div class="bar-rev" style="height:${rh}px">
+                <span style="position:absolute;top:-13px;font-size:7px;font-weight:700;color:#1a2744;left:50%;transform:translateX(-50%);white-space:nowrap">${esc(rl)}</span>
+              </div>
+            </div>
+            <div class="bar-bal" style="height:${bh}px"></div>
+          </div>
+          <div class="bar-lbl">${esc(m.lbl)}<br><span style="color:#b8965a">${m.count}</span></div>
+        </div>`;
+      }).join("")}</div>`;
+
+  // Rev table
+  const tblRows = allM.length === 0
+    ? `<tr><td colspan="5" class="empty" style="border:none">No data yet</td></tr>`
+    : allM.slice().reverse().map(m =>
+        `<tr>
+          <td style="font-weight:700">${esc(m.lbl)}</td>
+          <td>${m.count}</td>
+          <td style="color:#2e6b4f;font-weight:700">${inr(m.rev)}</td>
+          <td style="color:#1a4a7a;font-weight:700">${inr(m.paid)}</td>
+          <td style="color:#8b2e2e;font-weight:700">${inr(m.outstanding)}</td>
+        </tr>`
+      ).join("");
+
+  // Tomorrow section
+  const tom = getTomorrow();
+  const tomHTML = tom.length
+    ? `<div style="background:linear-gradient(135deg,#7b1818,#a02020);border-radius:10px;padding:14px 17px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <span style="color:#fff;font-size:13px;font-weight:700">🔔 ${tom.length} Deliver${tom.length>1?"ies":"y"} Tomorrow</span>
+          <a href="https://wa.me/${OWNER_WA}?text=${encodeURIComponent(ownerAlert(tom))}" target="_blank"
+             style="background:#25D366;color:#fff;font-weight:700;padding:5px 12px;border-radius:6px;text-decoration:none;font-size:12px">📲 WhatsApp Alert</a>
+        </div>
+        ${tom.map(o => `<div class="ocard" data-sid="${esc(mkSid(o))}"
+          style="background:rgba(255,255,255,.13);border:none;margin-bottom:6px;padding:9px 13px">
+          <span style="color:#ffd89b;font-size:11px;font-weight:700">${esc(o.ref)}</span>
+          <span style="color:#fff;font-weight:700;margin-left:6px">${esc(o.fullName)}</span>
+          <span style="color:#ddd;font-size:12px;margin-left:6px">${esc(o.phone)}</span>
+          <span class="badge b-tom" style="margin-left:6px">${esc(o.dressType)}</span>
+          ${bal(o)>0?`<span class="badge" style="background:rgba(255,80,80,.5);color:#fff;border:none;margin-left:4px">Bal: ${inr(bal(o))}</span>`:""}
+        </div>`).join("")}
+      </div>`
+    : `<div style="background:#f0fff5;border:1px solid #2e6b4f;border-radius:8px;padding:10px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px">✅</span>
+        <span style="color:#2e6b4f;font-weight:700;font-size:13px">No deliveries due tomorrow</span>
+      </div>`;
+
+  // Missing dates warning
+  const noDate = orders.filter(o => !o.orderDate || !o.deliveryDate);
+  const warnHTML = noDate.length
+    ? `<div style="background:#fff8e6;border:1.5px solid #c8960a;border-radius:8px;padding:10px 14px;margin-bottom:18px">
+        <b style="color:#8b6914">⚠️ ${noDate.length} order(s) missing dates</b><br>
+        <span style="font-size:11px;color:#7a8ba6">Tap each order → set Order &amp; Delivery dates → Save Dates</span>
+       </div>`
+    : "";
+
+  const recent = vis.slice(0, 5);
+
+  document.getElementById("dash-body").innerHTML =
+    tomHTML + warnHTML
+    + `<div class="g4" style="margin-bottom:18px">
+        <div class="stat-card"><p class="stat-lbl">Total Revenue</p><p class="stat-val">${inr(totRev)}</p></div>
+        <div class="stat-card"><p class="stat-lbl">Collected</p><p class="stat-val" style="color:#2e6b4f">${inr(totPaid)}</p></div>
+        <div class="stat-card"><p class="stat-lbl">Balance Pending</p><p class="stat-val" style="color:#8b2e2e">${inr(totBal)}</p></div>
+        <div class="stat-card"><p class="stat-lbl">Active / Delivered</p><p class="stat-val" style="color:#b8965a">${active} / ${deliv}</p></div>
+       </div>`
+    + `<div class="card" style="margin-bottom:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <span style="font-size:12px;font-weight:700;color:#1a2744;text-transform:uppercase;letter-spacing:.08em">Monthly Revenue</span>
+          <div style="display:flex;gap:6px">${["3M","6M","12M","ALL"].map(r=>`<button class="pill${chartRng===r?" on":""}" onclick="setRng('${r}')">${r}</button>`).join("")}</div>
+        </div>
+        <div style="overflow-x:auto;padding-bottom:28px">${chartHTML}</div>
+        <div style="display:flex;gap:14px;margin-top:4px">
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#7a8ba6"><span style="width:10px;height:10px;background:#b8965a;border-radius:2px;display:inline-block"></span>Revenue</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#7a8ba6"><span style="width:10px;height:10px;background:#8b2e2e;border-radius:2px;display:inline-block"></span>Balance</span>
+        </div>
+       </div>`
+    + `<div class="card" style="margin-bottom:18px;overflow-x:auto">
+        <table class="rtbl">
+          <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Collected</th><th>Balance</th></tr></thead>
+          <tbody>${tblRows}</tbody>
+        </table>
+       </div>`
+    + `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+        <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Recent Orders</span>
+        <button class="btn-ghost" style="padding:5px 13px;font-size:12px" onclick="goPage('history')">View All →</button>
+       </div>`
+    + (recent.length
+        ? recent.map(cardHTML).join("")
+        : `<div class="empty">No orders yet — <button onclick="goPage('new')" style="color:#b8965a;background:none;border:none;cursor:pointer;font-weight:700;font-size:14px">create first →</button></div>`
+      );
+}
+
+function setRng(r) { chartRng = r; renderDash(); }
+
+// ─── ORDER CARD ───
+function cardHTML(o) {
+  const b   = bal(o);
+  const sc  = "bs-" + (o.status||"default").replace(/ /g,"-");
+  const tom = toISO(o.deliveryDate) === tomorrowISO() && !["Delivered","Cancelled"].includes(o.status);
+  return `<div class="ocard" data-sid="${esc(mkSid(o))}" style="border-left:4px solid ${b>0?"#8b2e2e":"#2e6b4f"}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px">
+          <span style="font-size:10px;color:#b8965a;font-weight:700;letter-spacing:.1em">${esc(o.ref)}</span>
+          <span style="font-size:15px;font-weight:700;color:#1a2744;font-family:'Playfair Display',serif">${esc(o.fullName)}</span>
+          <span class="badge" style="background:#f5f0e8;color:#b8965a;border-color:#b8965a">${esc(o.dressType)}</span>
+          <span class="badge ${sc}">${esc(o.status||"Confirmed")}</span>
+          ${b>0?`<span class="badge b-due">Balance Due</span>`:`<span class="badge b-paid">Fully Paid</span>`}
+          ${tom?`<span class="badge b-tom">🚚 Tomorrow</span>`:""}
+        </div>
+        <p style="font-size:12px;color:#7a8ba6">${esc(o.phone)}${o.email?" · "+esc(o.email):""}</p>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:16px;font-weight:700;font-family:'Playfair Display',serif">${inr(o.totalAmount)}</div>
+        ${b>0?`<div style="font-size:11px;color:#8b2e2e">Bal: ${inr(b)}</div>`:""}
+      </div>
+    </div>
+    <div style="font-size:12px;color:#7a8ba6;margin-top:7px;display:flex;gap:14px;flex-wrap:wrap">
+      <span>Paid: <b style="color:#2e6b4f">${inr(o.amountPaid)}</b></span>
+      <span>Ordered: <b style="color:#1a2744">${fmt(o.orderDate)}</b></span>
+      <span>Delivery: <b style="color:#b8965a">${fmt(o.deliveryDate)}</b></span>
+    </div>
+  </div>`;
+}
+
+// Single delegated click handler for all order cards
+document.addEventListener("click", e => {
+  const card = e.target.closest("[data-sid]");
+  if (card) openOrder(card.getAttribute("data-sid"));
+});
+
+// ─── HISTORY ───
+function renderHistory() {
+  const el = document.getElementById("hist-body"); if (!el) return;
+  const FILTERS = ["All","Due Tomorrow","Confirmed","In Progress","Ready","Delivered","Cancelled","Balance Due"];
+  const tom = tomorrowISO();
+
+  // Collect years
+  const yrs = [...new Set(orders.map(o=>{const d=parseDate(o.orderDate);return d?d.getFullYear():null}).filter(Boolean))].sort((a,b)=>b-a);
+  // Months of selected year
+  const mos = hYear==="All" ? [] : [...new Set(orders.filter(o=>{const d=parseDate(o.orderDate);return d&&d.getFullYear()==hYear;}).map(o=>parseDate(o.orderDate).getMonth()))].sort((a,b)=>a-b);
+
+  const filtered = orders.filter(o => {
+    if (hSearch) {
+      const q = hSearch.toLowerCase();
+      if (![o.fullName,o.phone,o.ref,o.dressType].some(v=>(v||"").toLowerCase().includes(q))) return false;
+    }
+    if (hFilter !== "All") {
+      if (hFilter === "Balance Due"   && bal(o)<=0) return false;
+      if (hFilter === "Due Tomorrow"  && !(toISO(o.deliveryDate)===tom && !["Delivered","Cancelled"].includes(o.status))) return false;
+      if (!["Balance Due","Due Tomorrow"].includes(hFilter) && o.status !== hFilter) return false;
+    }
+    if (hYear !== "All") { const d=parseDate(o.orderDate); if(!d||d.getFullYear()!=hYear) return false; }
+    if (hMonth !== "All") { const d=parseDate(o.orderDate); if(!d||d.getMonth()!=hMonth) return false; }
+    return true;
+  });
+
+  const sub = document.getElementById("hist-sub");
+  if (sub) sub.textContent = filtered.length+" of "+orders.length+" orders";
+
+  el.innerHTML =
+    `<input style="margin-bottom:12px" placeholder="🔍  Search by name, phone, ref or dress type…"
+       value="${esc(hSearch)}" oninput="hSearch=this.value;renderHistory()"/>`
+    + `<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+        ${FILTERS.map(f=>`<button class="fbtn${hFilter===f?" on":""}" onclick="hFilter='${esc(f)}';renderHistory()">${esc(f)}</button>`).join("")}
+       </div>`
+    + `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <select style="width:auto;padding:6px 12px;font-size:12px;border-radius:20px;border:1.5px solid ${hYear!=="All"?"#1a2744":"#c8bfa8"};font-weight:700;background:#fff" onchange="hYear=this.value;hMonth='All';renderHistory()">
+          <option value="All">All Years</option>
+          ${yrs.map(y=>`<option value="${y}"${hYear==y?" selected":""}>${y}</option>`).join("")}
+        </select>
+        ${hYear!=="All"?`<select style="width:auto;padding:6px 12px;font-size:12px;border-radius:20px;border:1.5px solid ${hMonth!=="All"?"#1a2744":"#c8bfa8"};font-weight:700;background:#fff" onchange="hMonth=this.value;renderHistory()">
+          <option value="All">All Months</option>
+          ${mos.map(m=>`<option value="${m}"${hMonth==m?" selected":""}>${MONTHS[m]}</option>`).join("")}
+        </select>`:""}
+       </div>`
+    + (filtered.length
+        ? filtered.map(cardHTML).join("")
+        : `<div class="empty">No orders match your filter.</div>`
+      );
+}
+
+// ─── OPEN ORDER MODAL (full edit) ───
+function openOrder(sid) {
+  const o = findBySid(sid); if (!o) { toast("Order not found"); return; }
+  const b = bal(o);
+
+  const statOpts  = STATUSES.map(s=>`<option value="${s}"${o.status===s?" selected":""}>${s}</option>`).join("");
+  const dtypeOpts = DRESS_TYPES.map(t=>`<option value="${t}"${o.dressType===t?" selected":""}>${t}</option>`).join("");
+
+  document.getElementById("modal-root").innerHTML = `
+  <div class="overlay" id="ov">
+  <div class="mbox">
+    <div class="mhead">
+      <div>
+        <div style="font-size:10px;color:#b8965a;font-weight:700;letter-spacing:.14em;text-transform:uppercase">${esc(o.ref)}</div>
+        <h3 style="color:#fff;font-size:19px;margin-top:2px">${esc(o.fullName)}</h3>
+      </div>
+      <button id="mc-x" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div class="mbody">
+
+      <!-- STATUS -->
+      <div class="msec">
+        <p class="section-title">Status</p>
+        <div class="frow">
+          <select id="me-st" style="flex:1;padding:9px;font-size:13px;font-weight:700;border-radius:7px;border:1.5px solid #c8bfa8">${statOpts}</select>
+          <button class="sbtn" onclick="saveF('${sid}','status',document.getElementById('me-st').value)">✓ Update</button>
+        </div>
+      </div>
+
+      <!-- CUSTOMER -->
+      <div class="msec">
+        <p class="section-title">Customer</p>
+        <div class="g2" style="gap:10px">
+          ${mField("Full Name","me-fn","text",o.fullName,sid,"fullName")}
+          ${mField("Phone","me-ph","text",o.phone,sid,"phone")}
+          <div style="grid-column:1/-1">${mField("Email","me-em","email",o.email,sid,"email")}</div>
+        </div>
+      </div>
+
+      <!-- DRESS -->
+      <div class="msec">
+        <p class="section-title">Dress &amp; Measurements</p>
+        <div style="margin-bottom:10px">
+          <label>Dress Type</label>
+          <div class="frow">
+            <select id="me-dt" style="flex:1;padding:9px;font-size:13px;border:1.5px solid #c8bfa8;border-radius:7px">${dtypeOpts}</select>
+            <button class="sbtn" onclick="saveF('${sid}','dressType',document.getElementById('me-dt').value)">Save</button>
+          </div>
+        </div>
+        <div class="g2" style="gap:10px">
+          ${mField("Bust (in)","me-bu","number",o.bust,sid,"bust")}
+          ${mField("Waist (in)","me-wa","number",o.waist,sid,"waist")}
+          ${mField("Hip (in)","me-hi","number",o.hip,sid,"hip")}
+          ${mField("Length (in)","me-le","number",o.length,sid,"length")}
+          ${mField("Shoulder (in)","me-sh","number",o.shoulder,sid,"shoulder")}
+          ${mField("Sleeve (in)","me-sl","number",o.sleeve,sid,"sleeve")}
+        </div>
+        <div style="margin-top:10px">
+          <label>Customization</label>
+          <div class="frow" style="align-items:flex-start">
+            <textarea id="me-cu" style="flex:1;padding:9px;font-size:13px;border:1.5px solid #c8bfa8;border-radius:7px;height:60px;resize:none">${esc(o.customization||"")}</textarea>
+            <button class="sbtn" onclick="saveF('${sid}','customization',document.getElementById('me-cu').value)">Save</button>
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label>Notes</label>
+          <div class="frow" style="align-items:flex-start">
+            <textarea id="me-no" style="flex:1;padding:9px;font-size:13px;border:1.5px solid #c8bfa8;border-radius:7px;height:50px;resize:none">${esc(o.notes||"")}</textarea>
+            <button class="sbtn" onclick="saveF('${sid}','notes',document.getElementById('me-no').value)">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="msec">
+        <p class="section-title">Payment</p>
+        <div class="pay-row">
+          <div class="pay-item"><p>Total</p><p style="color:#fff">${inr(o.totalAmount)}</p></div>
+          <div class="pay-item"><p>Paid</p><p style="color:#6ee7a0">${inr(o.amountPaid)}</p></div>
+          <div class="pay-item"><p>Balance</p><p style="color:#ff9999">${inr(b)}</p></div>
+        </div>
+        <div class="g2" style="gap:10px">
+          <div>
+            <label>Total Amount (₹)</label>
+            <div class="frow">
+              <input id="me-tot" type="number" value="${esc(String(o.totalAmount||""))}" style="flex:1;padding:9px;font-size:13px;border:1.5px solid #c8bfa8;border-radius:7px" oninput="liveBal()"/>
+              <button class="btn-green" onclick="saveF('${sid}','totalAmount',document.getElementById('me-tot').value)">Save</button>
+            </div>
+          </div>
+          <div>
+            <label>Amount Paid (₹)</label>
+            <div class="frow">
+              <input id="me-pai" type="number" value="${esc(String(o.amountPaid||""))}" style="flex:1;padding:9px;font-size:13px;border:1.5px solid #c8bfa8;border-radius:7px" oninput="liveBal()"/>
+              <button class="btn-green" onclick="saveF('${sid}','amountPaid',document.getElementById('me-pai').value)">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="bal-strip">
+          <span style="font-size:11px;font-weight:700;color:#8b6914">Live Balance:</span>
+          <span id="live-bal" style="font-size:16px;font-weight:700;color:#8b2e2e;font-family:'Playfair Display',serif">${inr(b)}</span>
+        </div>
+      </div>
+
+      <!-- DATES -->
+      <div class="msec">
+        <p class="section-title">Dates</p>
+        <div class="g2" style="gap:10px">
+          <div><label>Order Date</label><input id="me-od" type="date" value="${esc(o.orderDate||"")}"/></div>
+          <div><label>Delivery Date</label><input id="me-dd" type="date" value="${esc(o.deliveryDate||"")}"/></div>
+        </div>
+        <button class="btn-navy" style="width:100%;margin-top:10px;padding:10px;font-size:13px" onclick="saveDates('${sid}')">💾 Save Both Dates</button>
+      </div>
+
+      <hr class="d"/>
+      <a href="${waLink(o)}" target="_blank" class="wabtn" style="margin-bottom:10px">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Send WhatsApp Receipt
+      </a>
+      <button class="btn-red" style="width:100%;padding:10px;font-size:13px" onclick="delOrder('${sid}')">🗑️ Delete Order</button>
+
+    </div>
+  </div>
+  </div>`;
+
+  document.getElementById("mc-x").onclick = closeModal;
+  document.getElementById("ov").onclick = e => { if (e.target.id==="ov") closeModal(); };
+}
+
+function mField(lbl, id, type, val, sid, field) {
+  return `<div><label>${lbl}</label><div class="frow">
+    <input id="${id}" type="${type}" value="${esc(String(val||""))}" style="flex:1;padding:9px;font-size:13px;border:1.5px solid #c8bfa8;border-radius:7px"/>
+    <button class="sbtn" onclick="saveF('${sid}','${field}',document.getElementById('${id}').value)">Save</button>
+  </div></div>`;
+}
+
+function liveBal() {
+  const t = parseFloat(document.getElementById("me-tot")?.value)||0;
+  const p = parseFloat(document.getElementById("me-pai")?.value)||0;
+  const el = document.getElementById("live-bal");
+  if (el) el.textContent = inr(Math.max(0,t-p));
+}
+
+function closeModal() { document.getElementById("modal-root").innerHTML = ""; }
+
+// ─── SAVE FIELD ───
+async function saveF(sid, field, value) {
+  const o = findBySid(sid); if (!o) return;
+  // Optimistic update in memory
+  orders = orders.map(x => mkSid(x)===sid ? {...x,[field]:value} : x);
+  try { localStorage.setItem("kd_orders",JSON.stringify(orders)); } catch(_){}
+  renderAll();
+  toast("Saving…");
+  try {
+    await apiPost({ action:"update", id:o.id, fields:{[field]:value} });
+    toast("✅ " + field + " saved to Sheets");
+  } catch(e) { toast("⚠️ Saved locally — " + e.message); }
+}
+
+async function saveDates(sid) {
+  const od = document.getElementById("me-od")?.value;
+  const dd = document.getElementById("me-dd")?.value;
+  if (!od || !dd) { toast("Please set both dates"); return; }
+  const o = findBySid(sid); if (!o) return;
+  orders = orders.map(x => mkSid(x)===sid ? {...x, orderDate:od, deliveryDate:dd} : x);
+  try { localStorage.setItem("kd_orders",JSON.stringify(orders)); } catch(_){}
+  closeModal(); renderAll(); toast("Saving dates…");
+  try {
+    await apiPost({ action:"update", id:o.id, fields:{orderDate:od, deliveryDate:dd} });
+    toast("✅ Dates saved to Sheets");
+  } catch(e) { toast("⚠️ Saved locally — " + e.message); }
+}
+
+async function delOrder(sid) {
+  if (!confirm("Delete this order? It will be hidden but kept in Sheets.")) return;
+  const o = findBySid(sid); if (!o) return;
+  orders = orders.filter(x => mkSid(x) !== sid);
+  try { localStorage.setItem("kd_orders",JSON.stringify(orders)); } catch(_){}
+  closeModal(); renderAll(); toast("Deleting…");
+  try {
+    await apiPost({ action:"delete", id:o.id });
+    toast("✅ Deleted from Sheets");
+  } catch(e) { toast("⚠️ Removed locally"); }
+}
+
+// ─── WHATSAPP ───
+function waMsg(o) {
+  const b = bal(o);
+  const meas = [
+    o.bust     && `Bust     : ${o.bust}"`,
+    o.waist    && `Waist    : ${o.waist}"`,
+    o.hip      && `Hip      : ${o.hip}"`,
+    o.length   && `Length   : ${o.length}"`,
+    o.shoulder && `Shoulder : ${o.shoulder}"`,
+    o.sleeve   && `Sleeve   : ${o.sleeve}"`
+  ].filter(Boolean).join("\n");
+  return `━━━━━━━━━━━━━━━━━━━━━
+🌸 *KAARIGAI DESIGNS* 🌸
+━━━━━━━━━━━━━━━━━━━━━
+📋 Ref     : *${o.ref}*
+👤 Name    : ${o.fullName}
+📱 Phone   : ${o.phone}
+
+👗 Dress   : ${o.dressType}
+📅 Order   : ${fmt(o.orderDate)}
+🚚 Delivery: ${fmt(o.deliveryDate)}
+📌 Status  : ${o.status||"Confirmed"}
+
+📐 *MEASUREMENTS*
+━━━━━━━━━━━━━━━━━━━━━
+${meas||"Not specified"}
+
+✂️ Custom  : ${o.customization||"Standard"}
+
+💰 *PAYMENT*
+━━━━━━━━━━━━━━━━━━━━━
+Total  : ₹${o.totalAmount}
+Paid   : ₹${o.amountPaid}
+Balance: ₹${b}
+━━━━━━━━━━━━━━━━━━━━━
+📸 ${IG_HDL}
+${IG_URL}
+━━━━━━━━━━━━━━━━━━━━━`;
+}
+function waLink(o) { return `https://wa.me/${o.phone.replace(/\D/g,"")}?text=${encodeURIComponent(waMsg(o))}`; }
+function ownerAlert(list) {
+  const t = new Date(); t.setDate(t.getDate()+1);
+  return `━━━━━━━━━━━━━━━━━━━━━\n🌸 *KAARIGAI DESIGNS*\n━━━━━━━━━━━━━━━━━━━━━\n⚡ *DELIVERIES TOMORROW*\n📅 ${fmt(t)}\n\n`
+    + list.map((o,i)=>`${i+1}. *${o.ref}* ${o.fullName} | ${o.dressType} | Bal: ₹${bal(o)}`).join("\n")
+    + "\n\n━━━━━━━━━━━━━━━━━━━━━";
+}
+
+// ─── NEW ORDER FORM ───
+function updRef() {
+  const ph = (document.getElementById("ph")?.value||"").replace(/\D/g,"");
+  const l4 = ph.length>=4 ? ph.slice(-4) : ph.padEnd(4,"X").slice(0,4);
+  const el = document.getElementById("ref-prev");
+  if (el) el.textContent = `KD-${new Date().getFullYear()}-${l4}`;
+}
+function updBal() {
+  const t = parseFloat(document.getElementById("tot")?.value)||0;
+  const a = parseFloat(document.getElementById("adv")?.value)||0;
+  const el = document.getElementById("new-bal");
+  if (el) el.textContent = inr(Math.max(0,t-a));
+}
+function gv(id) { const el=document.getElementById(id); return el?el.value.trim():""; }
+
+async function submitOrder() {
+  const req = {
+    fullName:    gv("fn"), phone:       gv("ph"),
+    dressType:   gv("dt"), totalAmount: gv("tot"),
+    amountPaid:  gv("adv"), orderDate:  gv("od"),
+    deliveryDate:gv("dd")
+  };
+  const errs = {fn:"Required",ph:"Required",dt:"Select dress type",tot:"Enter amount",adv:"Enter amount",od:"Required",dd:"Required"};
+  let ok = true;
+  for (const [k,msg] of Object.entries(errs)) {
+    const field = k==="tot"?"totalAmount":k==="adv"?"amountPaid":k==="od"?"orderDate":k==="dd"?"deliveryDate":k==="fn"?"fullName":k==="ph"?"phone":"dressType";
+    const bad = !req[field] || (["totalAmount","amountPaid"].includes(field) && isNaN(+req[field]));
+    const el = document.getElementById("err-"+k);
+    if (el) el.textContent = bad ? msg : "";
+    if (bad) ok = false;
+  }
+  if (!ok) return;
+
+  const phone = req.phone.replace(/\D/g,"");
+  const l4    = phone.length>=4 ? phone.slice(-4) : phone.padEnd(4,"0");
+  const id    = String(Date.now());
+  const o = {
+    id, ref:`KD-${new Date().getFullYear()}-${l4}`,
+    fullName:req.fullName, phone, email:gv("em"),
+    dressType:req.dressType,
+    bust:gv("bust"), waist:gv("waist"), hip:gv("hip"),
+    length:gv("len"), shoulder:gv("sho"), sleeve:gv("slv"),
+    customization:gv("cust"), notes:gv("nts"),
+    totalAmount:req.totalAmount, amountPaid:req.amountPaid,
+    orderDate:req.orderDate, deliveryDate:req.deliveryDate,
+    status:"Confirmed", deleted:"false",
+    createdAt:new Date().toISOString()
+  };
+
+  orders.unshift(o);
+  try { localStorage.setItem("kd_orders",JSON.stringify(orders)); } catch(_){}
+  resetForm(); goPage("dash"); renderAll();
+  showSuccessModal(o);
+
+  syncSet("loading","Saving order…");
+  try {
+    await apiPost({ action:"save", order:o });
+    syncSet("ok","Order saved to Google Sheets ✓");
+  } catch(e) {
+    syncSet("err","Save failed — stored locally");
+    toast("⚠️ Saved locally — " + e.message, 4000);
+  }
+}
+
+function resetForm() {
+  ["fn","ph","em","dt","bust","waist","hip","len","sho","slv","cust","nts","tot","adv","dd"].forEach(id => {
+    const el=document.getElementById(id); if(el) el.value="";
+  });
+  const od = document.getElementById("od"); if(od) od.value = todayISO();
+  updRef(); updBal();
+  Object.keys({fn:1,ph:1,dt:1,tot:1,adv:1,od:1,dd:1}).forEach(k => {
+    const el=document.getElementById("err-"+k); if(el) el.textContent="";
+  });
+}
+
+function showSuccessModal(o) {
+  const b = bal(o);
+  document.getElementById("modal-root").innerHTML = `
+  <div class="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="mbox" style="max-width:380px;text-align:center">
+    <div style="padding:28px 22px">
+      <div style="font-size:44px;margin-bottom:10px">🌸</div>
+      <h3 style="font-size:20px;color:#1a2744;margin-bottom:4px">Order Confirmed!</h3>
+      <p style="color:#b8965a;font-size:12px;font-weight:700;letter-spacing:.1em;margin-bottom:18px">${esc(o.ref)}</p>
+      <div style="background:#f5f0e8;border-radius:8px;padding:13px;text-align:left;margin-bottom:16px">
+        ${[["Customer",o.fullName],["Dress",o.dressType],["Delivery",fmt(o.deliveryDate)],
+           ["Total",inr(o.totalAmount)],["Paid",inr(o.amountPaid)],["Balance",inr(b)]]
+          .map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ede5d5">
+            <span style="color:#7a8ba6;font-size:13px">${k}</span>
+            <span style="font-weight:700;font-size:13px">${esc(String(v))}</span></div>`).join("")}
+      </div>
+      <a href="${waLink(o)}" target="_blank" class="wabtn" style="margin-bottom:10px;text-decoration:none">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Send WhatsApp Receipt
+      </a>
+      <button class="btn-ghost" style="width:100%;margin-top:8px" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+  </div>`;
+}
+
+// ─── INIT ───
+window.addEventListener("load", () => {
+  // Show cached data instantly while fetching
+  try { const c=localStorage.getItem("kd_orders"); if(c){orders=JSON.parse(c);renderAll();} } catch(_){}
+  // Set today's date in order form
+  const od=document.getElementById("od"); if(od) od.value=todayISO();
+  updRef();
+  // Fetch fresh data from Sheets
+  load();
+  // Auto-refresh every 30 seconds
+  setInterval(load, 30000);
+  // Re-sync when user returns to tab
+  document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
+});
+</script>
+</body>
+</html>
