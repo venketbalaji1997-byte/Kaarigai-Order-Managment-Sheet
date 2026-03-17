@@ -1621,37 +1621,20 @@ async function delOrder(sid) {
 // ─── WHATSAPP ───
 function waMsg(o) {
   const b = bal(o);
-  const meas = [
-    o.bust     && `Bust     : ${o.bust}"`,
-    o.waist    && `Waist    : ${o.waist}"`,
-    o.hip      && `Hip      : ${o.hip}"`,
-    o.length   && `Length   : ${o.length}"`,
-    o.shoulder && `Shoulder : ${o.shoulder}"`,
-    o.sleeve   && `Sleeve   : ${o.sleeve}"`
-  ].filter(Boolean).join("\n");
   return `━━━━━━━━━━━━━━━━━━━━━
 🌸 *KAARIGAI DESIGNS* 🌸
 ━━━━━━━━━━━━━━━━━━━━━
 📋 Ref     : *${o.ref}*
 👤 Name    : ${o.fullName}
-📱 Phone   : ${o.phone}
-
+📱 Phone   : +91${o.phone}
 👗 Dress   : ${o.dressType}
 📅 Order   : ${fmt(o.orderDate)}
 🚚 Delivery: ${fmt(o.deliveryDate)}
 📌 Status  : ${o.status||"Confirmed"}
-
-📐 *MEASUREMENTS*
 ━━━━━━━━━━━━━━━━━━━━━
-${meas||"Not specified"}
-
-✂️ Custom  : ${o.customization||"Standard"}
-
-💰 *PAYMENT*
-━━━━━━━━━━━━━━━━━━━━━
-Total  : ₹${o.totalAmount}
-Paid   : ₹${o.amountPaid}
-Balance: ₹${b}
+💰 Total   : ₹${o.totalAmount}
+✅ Paid    : ₹${o.amountPaid}
+⏳ Balance : ₹${b}
 ━━━━━━━━━━━━━━━━━━━━━
 📸 ${IG_HDL}
 ${IG_URL}
