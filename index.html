@@ -1035,7 +1035,7 @@ hr.d { border: none; border-top: 1px solid var(--cream2); margin: 18px 0; }
 
 <script>
 // ─── CONSTANTS ───
-const API      = "https://script.google.com/macros/s/AKfycbw8YIVCtANgET3OQiLhQU23d98GpK1gv4Kj5SS39y7LNGIz5D6I0IxEapvI9EwyvGY/exec";
+const API      = "https://script.google.com/macros/s/AKfycbzPPObxA_Gt1HOM_Fw9CAbSVpkxMC3j0jPntkbc8zPUdiXDnl-dCUhPZbB92RXkpq-B/exec";
 const OWNER_WA = "918056388361";
 const BOUTIQUE = "Kaarigai Designs";
 const IG_HDL   = "@kaarigai_pennea_";
@@ -1621,20 +1621,37 @@ async function delOrder(sid) {
 // ─── WHATSAPP ───
 function waMsg(o) {
   const b = bal(o);
+  const meas = [
+    o.bust     && `Bust     : ${o.bust}"`,
+    o.waist    && `Waist    : ${o.waist}"`,
+    o.hip      && `Hip      : ${o.hip}"`,
+    o.length   && `Length   : ${o.length}"`,
+    o.shoulder && `Shoulder : ${o.shoulder}"`,
+    o.sleeve   && `Sleeve   : ${o.sleeve}"`
+  ].filter(Boolean).join("\n");
   return `━━━━━━━━━━━━━━━━━━━━━
 🌸 *KAARIGAI DESIGNS* 🌸
 ━━━━━━━━━━━━━━━━━━━━━
 📋 Ref     : *${o.ref}*
 👤 Name    : ${o.fullName}
-📱 Phone   : +91${o.phone}
+📱 Phone   : ${o.phone}
+
 👗 Dress   : ${o.dressType}
 📅 Order   : ${fmt(o.orderDate)}
 🚚 Delivery: ${fmt(o.deliveryDate)}
 📌 Status  : ${o.status||"Confirmed"}
+
+📐 *MEASUREMENTS*
 ━━━━━━━━━━━━━━━━━━━━━
-💰 Total   : ₹${o.totalAmount}
-✅ Paid    : ₹${o.amountPaid}
-⏳ Balance : ₹${b}
+${meas||"Not specified"}
+
+✂️ Custom  : ${o.customization||"Standard"}
+
+💰 *PAYMENT*
+━━━━━━━━━━━━━━━━━━━━━
+Total  : ₹${o.totalAmount}
+Paid   : ₹${o.amountPaid}
+Balance: ₹${b}
 ━━━━━━━━━━━━━━━━━━━━━
 📸 ${IG_HDL}
 ${IG_URL}
