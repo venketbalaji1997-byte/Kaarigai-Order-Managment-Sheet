@@ -1024,7 +1024,17 @@ hr.d { border: none; border-top: 1px solid var(--cream2); margin: 18px 0; }
       <h2>Order History</h2>
       <p id="hist-sub">All orders</p>
     </div>
-    <button class="btn-outline" onclick="load()">🔄 Refresh</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn-outline" onclick="load()">🔄 Refresh</button>
+      <button onclick="exportCSV()" style="background:#2e6b4f;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <button onclick="exportJSON()" style="background:#1a3a6a;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export JSON
+      </button>
+    </div>
   </div>
   <div id="hist-body"></div>
 </div>
@@ -1747,6 +1757,57 @@ function showSuccessModal(o) {
     </div>
   </div>
   </div>`;
+}
+
+
+// ─── EXPORT ───
+const EXPORT_FIELDS = [
+  "id","ref","fullName","phone","email","dressType",
+  "bust","waist","hip","length","shoulder","sleeve",
+  "customization","notes","totalAmount","amountPaid",
+  "orderDate","deliveryDate","status","createdAt"
+];
+
+function exportCSV() {
+  if (!orders.length) { toast("No orders to export"); return; }
+  const header = EXPORT_FIELDS.join(",");
+  const rows = orders.map(o =>
+    EXPORT_FIELDS.map(f => {
+      const v = String(o[f] || "").replace(/"/g, '""');
+      return v.includes(",") || v.includes('"') || v.includes("\n") ? `"${v}"` : v;
+    }).join(",")
+  );
+  const csv = [header, ...rows].join("\n");
+  dlFile("kaarigai-orders-" + todayISO() + ".csv", csv, "text/csv");
+  toast("✅ CSV exported — " + orders.length + " orders");
+}
+
+function exportJSON() {
+  if (!orders.length) { toast("No orders to export"); return; }
+  const data = {
+    exported: new Date().toISOString(),
+    boutique: BOUTIQUE,
+    total: orders.length,
+    orders: orders.map(o => {
+      const out = {};
+      EXPORT_FIELDS.forEach(f => out[f] = o[f] || "");
+      out.balance = String(bal(o));
+      return out;
+    })
+  };
+  dlFile("kaarigai-orders-" + todayISO() + ".json", JSON.stringify(data, null, 2), "application/json");
+  toast("✅ JSON exported — " + orders.length + " orders");
+}
+
+function dlFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ─── INIT ───
